@@ -9,6 +9,10 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
       - name: Get Weather
         run: |
           curl "https://api.openweathermap.org/data/2.5/weather?q=London,uk&units=metric&appid=a3d9b50b2022aaff3f6b7eb24288e5c8" > weather.json
