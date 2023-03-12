@@ -1,0 +1,21 @@
+name: Weather Update
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Get Weather
+        run: |
+          curl "https://api.openweathermap.org/data/2.5/weather?q=London,uk&units=metric&appid=a3d9b50b2022aaff3f6b7eb24288e5c8" > weather.json
+          echo "{\"temperature\": $(jq -r '.main.temp' weather.json)}" > temperature.json
+          echo "Temperature in London: $(jq -r '.temperature' temperature.json)°C" > temperature.txt
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+          git add temperature.txt
+          git commit -m "Updated temperature"
+          git push
