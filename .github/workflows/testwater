@@ -1,0 +1,25 @@
+name: Update temperature file
+
+on:
+  schedule:
+    - cron: '0 */5 * * *' # run every 5 hours
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Fetch weather data
+        run: |
+          curl -s 'https://api.openweathermap.org/data/2.5/weather?q=London,uk&appid=a3d9b50b2022aaff3f6b7eb24288e5c8' \
+            | sed -E 's/^.*"temp":([^,]*),.*$/\1/' \
+            | awk '{ printf("%.2f", $1 - 273.15) }' \
+            > temperature.txt
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Update temperature file
+          commit_options: '--no-verify'
