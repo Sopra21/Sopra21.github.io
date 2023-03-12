@@ -16,6 +16,7 @@
   <p>Temperature in London</p>
   <p id="temp-c">loading...</p>
   <p id="temp-f"></p>
+  <button onclick="saveTemperature()">Save temperature to file</button>
   
   <script>
     var url = "https://api.openweathermap.org/data/2.5/weather?q=London,uk&appid=a3d9b50b2022aaff3f6b7eb24288e5c8";
@@ -28,23 +29,6 @@
         var tempF = format(fahrenheit(kelvin));
         d3.select("#temp-c").text(tempC + " °C");
         d3.select("#temp-f").text(tempF + " °F");
-        var text = "Temperature in London: " + tempC + " °C / " + tempF + " °F";
-        var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-        var filename = "temperature.txt";
-        if (window.navigator.msSaveOrOpenBlob) {
-          window.navigator.msSaveOrOpenBlob(blob, filename);
-        } else {
-          var a = document.createElement("a");
-          var url = URL.createObjectURL(blob);
-          a.href = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(function() {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);  
-          }, 0); 
-        }
       });
     }
     
@@ -56,5 +40,10 @@
     var fiveMinutes = 1000 * 60 * 5;
     setInterval(update, fiveMinutes);
     
+    function saveTemperature() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "temperature.php", true);
+      xhr.send();
+    }
   </script>
 </body>
