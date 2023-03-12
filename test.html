@@ -24,8 +24,27 @@
     function update(){
       d3.json(url, function (data){
         var kelvin = data.main.temp;
-        d3.select("#temp-c").text(format(celcuis(kelvin)) + " °C");
-        d3.select("#temp-f").text(format(fahrenheit(kelvin)) + " °F");
+        var tempC = format(celcuis(kelvin));
+        var tempF = format(fahrenheit(kelvin));
+        d3.select("#temp-c").text(tempC + " °C");
+        d3.select("#temp-f").text(tempF + " °F");
+        var text = "Temperature in London: " + tempC + " °C / " + tempF + " °F";
+        var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+        var filename = "temperature.txt";
+        if (window.navigator.msSaveOrOpenBlob) {
+          window.navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+          var a = document.createElement("a");
+          var url = URL.createObjectURL(blob);
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function() {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);  
+          }, 0); 
+        }
       });
     }
     
