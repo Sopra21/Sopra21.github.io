@@ -1,25 +1,32 @@
-name: Weather Update
+name: Update Weather
 
 on:
   workflow_dispatch:
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16.x'
-      - name: Get Weather
+      - name: Checkout repository
+        uses: actions/checkout@v2.4.4
+      
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Get weather data
         run: |
-          curl "https://api.openweathermap.org/data/2.5/weather?q=London,uk&units=metric&appid=a3d9b50b2022aaff3f6b7eb24288e5c8" > weather.json
-          echo "{\"temperature\": $(jq -r '.main.temp' weather.json)}" > temperature.json
-          echo "Temperature in London: $(jq -r '.temperature' temperature.json)°C" > temperature.txt
-          git config --global user.email "you@example.com"
-          git config --global user.name "Your Name"
-          git add temperature.txt
-          git commit -m "Updated temperature"
-          git push
+          API_KEY=<a3d9b50b2022aaff3f6b7eb24288e5c8>
+          CITY="London,UK"
+          curl -s "https://api.openweathermap.org/data/2.5/weather?q=$CITY&appid=$API_KEY" | jq -r '{ temperature: (.main.temp - 273.15) }' > temperature.json
+
+      - name: Write to file
+        run: echo "Temperature in London: $(jq -r '.temperature' temperature.json)°C" > temperature.txt
+      
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Update temperature.txt"
+          commit_options: "--no-verify"
+          commit_user_name: "GitHub Actions"
+          commit_user_email: "actions@github.com"
+          branch: main
